@@ -57,7 +57,7 @@ export default function Login(){
 
     const retrieveUserDetails = (token) => {
         fetch("http://localhost:4000/users/details", {
-            method: "POST",
+            method: "GET",
             headers: {
                 Authorization: `Bearer ${token}`
             }

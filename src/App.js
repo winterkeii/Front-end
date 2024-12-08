@@ -34,7 +34,7 @@ function App() {
 
   useEffect(() => {
     fetch("http://localhost:4000/users/details", {
-      method: "POST",
+      method: "GET",
       headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
       }

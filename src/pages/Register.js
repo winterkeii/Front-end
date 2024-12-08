@@ -53,8 +53,8 @@ export default function Register(){
                 setPassword("");
             }else{
                 Swal.fire({
-                    title: "SOMETHING WENT WRONG!",
-                    text: "Please try again",
+                    title: "EMAIL IS ALREADY IN USE",
+                    text: "Please try again with another email",
                     icon: "error"
                 })
             }

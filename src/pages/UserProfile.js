@@ -1,152 +1,224 @@
-import { useState, useContext } from "react";
-import { Container, Row, Col, Button, Form } from "react-bootstrap";
+import { useState, useContext, useEffect } from "react";
+import { Container, Row, Col, Button, Form, Modal, Card } from "react-bootstrap";
 import UserContext from "../UserContext";
 import Swal from "sweetalert2";
-import { data } from "react-router-dom";
 
 export default function UserProfile() {
-    const { user } = useContext(UserContext);
+  const { user } = useContext(UserContext);
 
-    const [firstName, setFirstName] = useState(user?.firstName || "");
-    const [middleName, setMiddleName] = useState(user?.middleName || "");
-    const [lastName, setLastName] = useState(user?.lastName || "");
-    const [email, setEmail] = useState(user?.email || "");
-    const [contactNumber, setContactNumber] = useState(user?.contactNumber || "");
-    const [password, setPassword] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [updatedDetails, setUpdatedDetails] = useState({
-        firstName,
-        middleName,
-        lastName,
-        email,
-        contactNumber,
-        
+  
+  const [showModal, setShowModal] = useState(false);
+
+  
+  const [userDetails, setUserDetails] = useState(null);
+  const [firstName, setFirstName] = useState("");
+  const [middleName, setMiddleName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
+  const [password, setPassword] = useState("");
+  const [isAdmin, setIsAdmin] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Function to fetch user details
+  const showUserDetails = () => {
+    fetch("http://localhost:4000/users/details", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`, 
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.code === "USER-FOUND") {
+          setUserDetails(data.result);
+          // Pre-fill form fields with fetched data
+          setFirstName(data.result.firstName || "");
+          setMiddleName(data.result.middleName || "");
+          setLastName(data.result.lastName || "");
+          setEmail(data.result.email || "");
+          setContactNumber(data.result.contactNumber || "");
+        } else {
+          setError(data.message);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        setError("An unexpected error occurred.");
       });
+  };
 
-    const updateUserDetails = () => {
-        fetch("http://localhost:4000/users/update", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("token")}`, // Replace with your token retrieval method
-            },
-            body: JSON.stringify({
-                firstName,
-                middleName,
-                lastName,
-                email,
-                contactNumber,
-                password
-            }),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                console.log("Server Response:", data);
-                if (data.code === "USER-UPDATE-SUCCESS") {
-                    Swal.fire({
-                        title: "SUCCESS!",
-                        text: data.message,
-                        icon: "success"
-                    });
-                } else {
-                    Swal.fire({
-                        title: "SOMETHING WENT WRONG!",
-                        text: data.message,
-                        icon: "error"
-                    });
-                }
-            })
-            .catch((error) => console.error("Error:", error));
+  // Fetch user details when the component mounts
+  useEffect(() => {
+    showUserDetails();
+  }, []);
+
+  // Function to toggle modal visibility
+  const toggleModal = () => setShowModal(!showModal);
+
+  // Function to update user details
+  const updateUserDetails = () => {
+    const updatedData = {
+      firstName,
+      middleName,
+      lastName,
+      email, 
+      contactNumber,
+      ...(password && { password }),
+      isAdmin
     };
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        setIsSubmitting(true);
-        console.log("Form Data:", { firstName, middleName, lastName, email, contactNumber, password });
-        updateUserDetails();
-        setIsSubmitting(false);
-    };
-    console.log("User Data:", user);
+    fetch("http://localhost:4000/users/update", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify(updatedData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.code === "USER-UPDATE-SUCCESS") {
+          Swal.fire({
+            title: "SUCCESS!",
+            text: data.message,
+            icon: "success",
+          });
+          toggleModal(); // Close modal on success
+          showUserDetails(); // Refresh user details
+        } else {
+          Swal.fire({
+            title: "SOMETHING WENT WRONG!",
+            text: data.message,
+            icon: "error",
+          });
+        }
+      })
+      .catch((error) => console.error("Error:", error));
+  };
 
-    return (
-        <Container className="d-flex flex-column col-lg-6 col-12">
-            <Row>
-                <Col>
-                    <Container fluid className="p-5 d-flex flex-column align-items-center justify-content-center">
-                        <Form
-                            className="w-100 p-5 shadow rounded-3 border-bottom border-3 border-warning"
-                            onSubmit={handleSubmit}
-                        >
-                            <h1>Edit Profile</h1>
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    updateUserDetails();
+    setIsSubmitting(false);
+  };
 
-                            <Form.Group className="mb-3" controlId="firstName">
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Enter your first name"
-                                    value={firstName}
-                                    required onChange={(e) => setFirstName(e.target.value)}
-                                />
-                            </Form.Group>
+  return (
+    <Container>
+       
+      <Row className="justify-content-center">
+        <Col lg={6}>
+          {error ? (
+            <p style={{ color: "red" }}>{error}</p>
+          ) : userDetails ? (
+            <Card className="my-3">
+                 <h1 className="mx-3 my-3">Profile</h1>
+              <Card.Body>
+                <Card.Title>User ID</Card.Title>
+                <Card.Text>{userDetails._id}</Card.Text>
+                <Card.Title>Name</Card.Title>
+                <Card.Text>{`${userDetails.firstName} ${userDetails.middleName} ${userDetails.lastName}`}</Card.Text>
+                <Card.Title>Email</Card.Title>
+                <Card.Text>{userDetails.email}</Card.Text>
+                <Card.Title>Contact Number</Card.Title>
+                <Card.Text>{userDetails.contactNumber}</Card.Text>
+                <Card.Title>Role</Card.Title>
+                <Card.Text>{userDetails.isAdmin ? "Admin" : "User"}</Card.Text>
+              </Card.Body>
+            </Card>
+          ):<></>}
 
-                            <Form.Group className="mb-3" controlId="middleName">
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Enter your middle name"
-                                    value={middleName}
-                                    required onChange={(e) => setMiddleName(e.target.value)}
-                                />
-                            </Form.Group>
+          <Button variant="primary" className="my-3" onClick={toggleModal}>
+            Edit Profile
+          </Button>
+        </Col>
+      </Row>
 
-                            <Form.Group className="mb-3" controlId="lastName">
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Enter your last name"
-                                    value={lastName}
-                                    required onChange={(e) => setLastName(e.target.value)}
-                                />
-                            </Form.Group>
+      {/* Modal for editing user profile */}
+      <Modal show={showModal} onHide={toggleModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Profile</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3" controlId="firstName">
+              <Form.Label>First Name</Form.Label>
+              <Form.Control
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+            </Form.Group>
 
-                            <Form.Group className="mb-3" controlId="email">
-                                <Form.Control
-                                    type="email"
-                                    placeholder="Enter your email"
-                                    value={email}
-                                    required onChange={(e) => setEmail(e.target.value)}
-                                />
-                            </Form.Group>
+            <Form.Group className="mb-3" controlId="middleName">
+              <Form.Label>Middle Name</Form.Label>
+              <Form.Control
+                type="text"
+                value={middleName}
+                onChange={(e) => setMiddleName(e.target.value)}
+              />
+            </Form.Group>
 
-                            <Form.Group className="mb-3" controlId="contactNumber">
-                                <Form.Control
-                                    type="number"
-                                    placeholder="Enter your mobile number"
-                                    value={contactNumber}
-                                    required onChange={(e) => setContactNumber(e.target.value)}
-                                />
-                            </Form.Group>
+            <Form.Group className="mb-3" controlId="lastName">
+              <Form.Label>Last Name</Form.Label>
+              <Form.Control
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </Form.Group>
 
-                            <Form.Group className="mb-3" controlId="password">
-                                <Form.Control
-                                    type="password"
-                                    placeholder="Enter your password"
-                                    value={password}
-                                    required onChange={(e) => setPassword(e.target.value)}
-                                />
-                            </Form.Group>
+            <Form.Group className="mb-3" controlId="email">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Form.Group>
 
-                            <Form.Group className="mb-3" controlId="submit">
-                                <Button
-                                    variant="warning"
-                                    className="w-100 rounded-pill"
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                >
-                                    {isSubmitting ? "Saving..." : "Save Changes"}
-                                </Button>
-                            </Form.Group>
-                        </Form>
-                    </Container>
-                </Col>
-            </Row>
-        </Container>
-    );
+            <Form.Group className="mb-3" controlId="contactNumber">
+              <Form.Label>Contact Number</Form.Label>
+              <Form.Control
+                type="text"
+                value={contactNumber}
+                onChange={(e) => setContactNumber(e.target.value)}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="password">
+              <Form.Label>Password (Optional)</Form.Label>
+              <Form.Control
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="role">
+            <Form.Label>Role (Admin)</Form.Label>
+            <Form.Check
+                type="checkbox"
+                label="Is Admin"
+                checked={isAdmin} // Bind the checkbox state to `isAdmin`
+                onChange={(e) => setIsAdmin(e.target.checked)} // Update state with the checkbox value
+            />
+            </Form.Group>
+
+
+            <Button
+              variant="warning"
+              className="w-100"
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Saving..." : "Save Changes"}
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+    </Container>
+  );
 }
