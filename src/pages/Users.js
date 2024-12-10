@@ -12,7 +12,7 @@ export default function Users(){
 
     const fetchUsers = () => {
         fetch("http://localhost:4000/users/all", {
-            method: "POST",
+            method: "GET",
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`
             }
@@ -33,6 +33,8 @@ export default function Users(){
             }
         })
     }
+
+    
 
     console.log(users)
 

@@ -2,14 +2,12 @@ import { useState, useContext, useEffect } from "react";
 import { Container, Row, Col, Button, Form, Modal, Card } from "react-bootstrap";
 import UserContext from "../UserContext";
 import Swal from "sweetalert2";
+import { Navigate } from "react-router-dom";
 
 export default function UserProfile() {
   const { user } = useContext(UserContext);
 
-  
   const [showModal, setShowModal] = useState(false);
-
-  
   const [userDetails, setUserDetails] = useState(null);
   const [firstName, setFirstName] = useState("");
   const [middleName, setMiddleName] = useState("");
@@ -17,58 +15,63 @@ export default function UserProfile() {
   const [email, setEmail] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const [password, setPassword] = useState("");
-  const [isAdmin, setIsAdmin] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isAdmin, setIsAdmin] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imgLink, setImgLink] = useState("");
   const [error, setError] = useState(null);
 
-  // Function to fetch user details
-  const showUserDetails = () => {
+  
+  useEffect(() => {
     fetch("http://localhost:4000/users/details", {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`, 
-      },
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.code === "USER-FOUND") {
           setUserDetails(data.result);
-          // Pre-fill form fields with fetched data
           setFirstName(data.result.firstName || "");
           setMiddleName(data.result.middleName || "");
           setLastName(data.result.lastName || "");
           setEmail(data.result.email || "");
           setContactNumber(data.result.contactNumber || "");
+          setIsAdmin(data.result.isAdmin || "");
+          setImgLink(data.result.imgLink || "");
         } else {
           setError(data.message);
         }
       })
-      .catch((error) => {
-        console.error("Error:", error);
-        setError("An unexpected error occurred.");
-      });
-  };
-
-  // Fetch user details when the component mounts
-  useEffect(() => {
-    showUserDetails();
+      .catch((error) => setError("An unexpected error occurred."));
   }, []);
 
-  // Function to toggle modal visibility
   const toggleModal = () => setShowModal(!showModal);
 
-  // Function to update user details
-  const updateUserDetails = () => {
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (password && password !== confirmPassword) {
+      Swal.fire({
+        title: "Error",
+        text: "Passwords do not match.",
+        icon: "error",
+      });
+      return;
+    }
+
     const updatedData = {
+      _id: userDetails._id,
       firstName,
       middleName,
       lastName,
-      email, 
+      email,
       contactNumber,
+      imgLink,
       ...(password && { password }),
-      isAdmin
+      isAdmin,
     };
 
+    setIsSubmitting(true);
     fetch("http://localhost:4000/users/update", {
       method: "PUT",
       headers: {
@@ -85,64 +88,76 @@ export default function UserProfile() {
             text: data.message,
             icon: "success",
           });
-          toggleModal(); // Close modal on success
-          showUserDetails(); // Refresh user details
+          toggleModal();
+          setUserDetails(updatedData);
         } else {
           Swal.fire({
-            title: "SOMETHING WENT WRONG!",
+            title: "ERROR!",
             text: data.message,
             icon: "error",
           });
         }
       })
-      .catch((error) => console.error("Error:", error));
+      .finally(() => setIsSubmitting(false));
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setIsSubmitting(true);
-    updateUserDetails();
-    setIsSubmitting(false);
-  };
-
-  return (
-    <Container>
-       
+  return user.id === null ? (
+    <Navigate to="/" />
+  ) : (
+    <Container id="profile-con" className="p-4">
       <Row className="justify-content-center">
         <Col lg={6}>
           {error ? (
             <p style={{ color: "red" }}>{error}</p>
           ) : userDetails ? (
-            <Card className="my-3">
-                 <h1 className="mx-3 my-3">Profile</h1>
+            <Card className="shadow rounded-3 border-0">
+              <Card.Header className="bg-primary text-white text-center">
+                <h2 className="mb-0">Your Profile</h2>
+              </Card.Header>
               <Card.Body>
-                <Card.Title>User ID</Card.Title>
-                <Card.Text>{userDetails._id}</Card.Text>
-                <Card.Title>Name</Card.Title>
-                <Card.Text>{`${userDetails.firstName} ${userDetails.middleName} ${userDetails.lastName}`}</Card.Text>
-                <Card.Title>Email</Card.Title>
-                <Card.Text>{userDetails.email}</Card.Text>
-                <Card.Title>Contact Number</Card.Title>
-                <Card.Text>{userDetails.contactNumber}</Card.Text>
-                <Card.Title>Role</Card.Title>
-                <Card.Text>{userDetails.isAdmin ? "Admin" : "User"}</Card.Text>
+              <Card.Img
+                  variant="top"
+                  src={imgLink || "https://cdn-icons-png.flaticon.com/512/147/147144.png"} 
+                  onError={(e) => (e.target.src = "https://cdn-icons-png.flaticon.com/512/147/147144.png")} 
+                  className="center-crop mb-3"
+                  style={{ borderRadius: "50%", maxWidth: "150px", margin: "0 auto", display: "block" }}
+                />
+                <Card.Title>User Details</Card.Title>
+                <Card.Text><strong>User ID:</strong> {userDetails._id}</Card.Text>
+                <Card.Text><strong>Name:</strong> {`${firstName} ${middleName} ${lastName}`}</Card.Text>
+                <Card.Text><strong>Email:</strong> {email}</Card.Text>
+                <Card.Text><strong>Contact:</strong> {contactNumber}</Card.Text>
+                <Card.Text>
+                  <strong>Role:</strong> {isAdmin ? "Admin" : "User"}
+                </Card.Text>
               </Card.Body>
+              <Card.Footer className="text-center">
+                <Button variant="warning" onClick={toggleModal}>
+                  Edit Profile
+                </Button>
+              </Card.Footer>
             </Card>
-          ):<></>}
-
-          <Button variant="primary" className="my-3" onClick={toggleModal}>
-            Edit Profile
-          </Button>
+          ) : (
+            <p>Loading...</p>
+          )}
         </Col>
       </Row>
 
-      {/* Modal for editing user profile */}
       <Modal show={showModal} onHide={toggleModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>Edit Profile</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3" controlId="imgLink">
+              <Form.Label>Profile Image URL</Form.Label>
+              <Form.Control
+                type="text"
+                value={imgLink}
+                onChange={(e) => setImgLink(e.target.value)}
+                placeholder="Enter image URL"
+              />
+            </Form.Group>
             <Form.Group className="mb-3" controlId="firstName">
               <Form.Label>First Name</Form.Label>
               <Form.Control
@@ -151,7 +166,6 @@ export default function UserProfile() {
                 onChange={(e) => setFirstName(e.target.value)}
               />
             </Form.Group>
-
             <Form.Group className="mb-3" controlId="middleName">
               <Form.Label>Middle Name</Form.Label>
               <Form.Control
@@ -160,7 +174,6 @@ export default function UserProfile() {
                 onChange={(e) => setMiddleName(e.target.value)}
               />
             </Form.Group>
-
             <Form.Group className="mb-3" controlId="lastName">
               <Form.Label>Last Name</Form.Label>
               <Form.Control
@@ -169,7 +182,6 @@ export default function UserProfile() {
                 onChange={(e) => setLastName(e.target.value)}
               />
             </Form.Group>
-
             <Form.Group className="mb-3" controlId="email">
               <Form.Label>Email</Form.Label>
               <Form.Control
@@ -178,7 +190,6 @@ export default function UserProfile() {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </Form.Group>
-
             <Form.Group className="mb-3" controlId="contactNumber">
               <Form.Label>Contact Number</Form.Label>
               <Form.Control
@@ -187,34 +198,31 @@ export default function UserProfile() {
                 onChange={(e) => setContactNumber(e.target.value)}
               />
             </Form.Group>
-
             <Form.Group className="mb-3" controlId="password">
-              <Form.Label>Password (Optional)</Form.Label>
+              <Form.Label>New Password</Form.Label>
               <Form.Control
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter new password"
               />
             </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="role">
-            <Form.Label>Role (Admin)</Form.Label>
-            <Form.Check
-                type="checkbox"
-                label="Is Admin"
-                checked={isAdmin} // Bind the checkbox state to `isAdmin`
-                onChange={(e) => setIsAdmin(e.target.checked)} // Update state with the checkbox value
-            />
+            <Form.Group className="mb-3" controlId="confirmPassword">
+              <Form.Label>Confirm New Password</Form.Label>
+              <Form.Control
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Re-enter new password"
+              />
             </Form.Group>
-
-
             <Button
-              variant="warning"
+              variant="primary"
               className="w-100"
               type="submit"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Saving..." : "Save Changes"}
+              {isSubmitting ? "Updating..." : "Update Profile"}
             </Button>
           </Form>
         </Modal.Body>

@@ -5,7 +5,124 @@
 }
 
 #enroll:hover {
-  background-color: #009dff; /* Change to a different color on hover */
+  background-color: #008ee7; /* Change to a different color on hover */
   color: white; /* Change text color to white on hover */
   transform: scale(1.1); /* Slight scale effect to make it bigger on hover */
+}
+
+#banner {
+  background-image: url("bg.jpg");
+  background-size: cover; /* Ensures the image covers the area */
+  background-position: center; /* Centers the image */
+}
+
+#banner-text{
+  background-color: #e1e8ec;
+}
+
+
+/* Profile Container */
+#profile-con{
+  margin-top: 40px;
+}
+
+/* Card Styling */
+.card {
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+  background-color: #007bff;
+  color: white;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+}
+
+.card-body {
+  padding: 20px;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #333;
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #0056b3;
+}
+
+.card-text {
+  margin-bottom: 15px;
+}
+
+/* Button Styling */
+.button-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: white;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.button-primary:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+.button-warning {
+  background-color: #ffc107;
+  border-color: #ffc107;
+  color: #212529;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.button-warning:hover {
+  background-color: #e0a800;
+  transform: translateY(-2px);
+}
+
+/* Modal Styling */
+.modal-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-title {
+  font-weight: bold;
+  color: #0056b3;
+}
+
+.modal-body {
+  font-size: 0.9rem;
+}
+
+.form-control {
+  border-radius: 0.25rem;
+  border: 1px solid #ced4da;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.btn {
+  border-radius: 25px;
+}
+
+/* Footer */
+.card-footer {
+  background-color: #f8f9fa;
+  text-align: center;
+  padding: 15px;
 }

@@ -39,6 +39,7 @@ export default function Course(){
     }, [])
 
     return(
+        
         <Container fluid className="p-5 d-flex flex-column justify-content-center align-items-center">
             <h1 className="mb-3 display-3 fw-bold">Welcome To The Course Page</h1>
             <p className="mb-5">Please select and enroll to your desired program and course.</p>

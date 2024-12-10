@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Button, Container, Form, Image } from "react-bootstrap";
 import Swal from "sweetalert2";
+import UserContext from "../UserContext";
+import { Navigate } from "react-router-dom";
 
 
 export default function AddCourse(){
+    const {user, setUser} = useContext(UserContext);
     const [imgLink, setImgLink] = useState("")
     const [name, setName] = useState("")
     const [description, setDescription] = useState("")
@@ -46,7 +49,12 @@ export default function AddCourse(){
         })
     }
 
+    
+
     return(
+        user.id === null ?
+        <Navigate to="/"/>
+        :
             <Container fluid className="vh-100 p-5">
             <Container className=" mb-5">
                 <h1 className="display-3 fw-bold">ADD COURSE</h1>

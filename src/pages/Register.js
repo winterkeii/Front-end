@@ -65,51 +65,105 @@ export default function Register(){
             user.id !== null ?
             <Navigate to="/"/>
             :
-        <Container fluid className="vh-100">
-            <Row>
-                <Col className="vh-100 bg-warning col-6 d-flex flex-column align-items-center justify-content-center">
-                    <h1 className="display-5 fw-bold">REGISTER NOW!</h1>
-                    <p className="display-6">Your Brigth Future Begins Here!</p>
-                </Col>
-
-                <Col className="vh-100 col-6">
-                    <Container fluid className="p-5 d-flex flex-column align-items-center justify-content-center">
-                        <h1 className="display-5 fw-bold mb-5">REGISTER</h1>
-
-                        <Form className="w-100 p-5 shadow rounded-3 border-bottom border-3 border-warning " onSubmit={e => register(e)}>
-
-                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                            <Form.Control type="text" placeholder="Enter your first name" required onChange={e => setFirstName(e.target.value)} value={firstName}/>
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                            <Form.Control type="text" placeholder="Enter your middle name" required onChange={e => setMiddleName(e.target.value)} value={middleName}/>
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                            <Form.Control type="text" placeholder="Enter your last name" required onChange={e => setLastName(e.target.value)} value={lastName}/>
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                            <Form.Control type="email" placeholder="Enter your email" required onChange={e => setEmail(e.target.value)} value={email}/>
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                            <Form.Control type="number" placeholder="Enter your mobile number" required onChange={e => setContactNumber(e.target.value)} value={contactNumber}/>
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                            <Form.Control type="password" placeholder="Enter your password" required onChange={e => setPassword(e.target.value)} value={password}/>
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                            <Button variant="warning" className="w-100 rounded-pill" type="submit">Register</Button>
-                        </Form.Group>
-
-                        </Form>
-                    </Container>
-                </Col>
+            <Container fluid className="vh-100">
+            <Row className="h-100 g-0">
+              {/* Left Column */}
+              <Col
+                xs={12}
+                md={6}
+                className="bg-warning d-flex flex-column align-items-center justify-content-center text-center py-5"
+              >
+                <h1 className="display-6 fw-bold">REGISTER NOW!</h1>
+                <p className="lead">Your Bright Future Begins Here!</p>
+              </Col>
+          
+              {/* Right Column */}
+              <Col
+                xs={12}
+                md={6}
+                className="d-flex flex-column align-items-center justify-content-center py-5"
+              >
+                <Container
+                  className="p-4 shadow rounded-3 border-bottom border-3 border-warning w-100"
+                  style={{ maxWidth: "400px" }}
+                >
+                  <h1 className="display-6 fw-bold mb-4 text-center">REGISTER</h1>
+          
+                  <Form onSubmit={(e) => register(e)}>
+                    <Form.Group className="mb-3" controlId="firstName">
+                      <Form.Control
+                        type="text"
+                        placeholder="Enter your first name"
+                        required
+                        onChange={(e) => setFirstName(e.target.value)}
+                        value={firstName}
+                      />
+                    </Form.Group>
+          
+                    <Form.Group className="mb-3" controlId="middleName">
+                      <Form.Control
+                        type="text"
+                        placeholder="Enter your middle name"
+                        required
+                        onChange={(e) => setMiddleName(e.target.value)}
+                        value={middleName}
+                      />
+                    </Form.Group>
+          
+                    <Form.Group className="mb-3" controlId="lastName">
+                      <Form.Control
+                        type="text"
+                        placeholder="Enter your last name"
+                        required
+                        onChange={(e) => setLastName(e.target.value)}
+                        value={lastName}
+                      />
+                    </Form.Group>
+          
+                    <Form.Group className="mb-3" controlId="email">
+                      <Form.Control
+                        type="email"
+                        placeholder="Enter your email"
+                        required
+                        onChange={(e) => setEmail(e.target.value)}
+                        value={email}
+                      />
+                    </Form.Group>
+          
+                    <Form.Group className="mb-3" controlId="contactNumber">
+                      <Form.Control
+                        type="number"
+                        placeholder="Enter your mobile number"
+                        required
+                        onChange={(e) => setContactNumber(e.target.value)}
+                        value={contactNumber}
+                      />
+                    </Form.Group>
+          
+                    <Form.Group className="mb-3" controlId="password">
+                      <Form.Control
+                        type="password"
+                        placeholder="Enter your password"
+                        required
+                        onChange={(e) => setPassword(e.target.value)}
+                        value={password}
+                      />
+                    </Form.Group>
+          
+                    <Form.Group className="mb-3">
+                      <Button
+                        variant="warning"
+                        className="w-100 rounded-pill"
+                        type="submit"
+                      >
+                        Register
+                      </Button>
+                    </Form.Group>
+                  </Form>
+                </Container>
+              </Col>
             </Row>
-        </Container>
+          </Container>
+          
     );
 }
