@@ -112,8 +112,8 @@ export default function UserCard({ usersData, refreshUsers }) {
           <Card.Body>
           <Card.Img
                   variant="top"
-                  src={imgLink || "../avatar.png"} 
-                  onError={(e) => (e.target.src = "../avatar.png")}
+                  src={imgLink || "https://cdn-icons-png.flaticon.com/512/5095/5095023.png"} 
+                  onError={(e) => (e.target.src = "")}
                   className="center-crop mb-3"
                   style={{ borderRadius: "50%", maxWidth: "150px", margin: "0 auto", display: "block" }}
                 />
